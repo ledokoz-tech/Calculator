@@ -54,6 +54,9 @@ fn App(cx: Scope) -> Element {
             button { class: "button operator", onclick: move |_| handle_operator(state, '*'), "*" },
             button { class: "button operator", onclick: move |_| handle_operator(state, '/'), "/" },
 
+            // Square Root button
+            button { class: "button operator", onclick: move |_| handle_square_root(state), "√" },
+
             // Clear button
             button { class: "button clear", onclick: move |_| handle_clear(state), "C" },
 
@@ -95,13 +98,36 @@ fn handle_equals(state: &UseState<CalculatorState>) {
                 '+' => val1 + val2,
                 '-' => val1 - val2,
                 '*' => val1 * val2,
-                '/' => if val2 != 0.0 { val1 / val2 } else { 0.0 }, // Handle division by zero
+                '/' => if val2 != 0.0 { val1 / val2 } else { f64::NAN }, // Handle division by zero, use NaN for error
                 _ => val2, // Should not happen with current operators
             };
             s.display = result.to_string();
             s.current_value = Some(result); // Store result for potential chained operations
             s.operator = None;
             s.waiting_for_second_operand = false;
+        }
+    });
+}
+
+// Event handler for square root button
+fn handle_square_root(state: &UseState<CalculatorState>) {
+    state.modify(move |s| {
+        if let Ok(value) = s.display.parse::<f64>() {
+            if value >= 0.0 {
+                let result = value.sqrt();
+                s.display = result.to_string();
+                s.current_value = Some(result);
+                s.operator = None;
+                s.waiting_for_second_operand = false;
+            } else {
+                // Handle error for negative square root
+                s.display = "Error".to_string();
+                *s = CalculatorState::default(); // Reset state after error
+            }
+        } else {
+            // Handle parsing error for display value
+            s.display = "Error".to_string();
+            *s = CalculatorState::default(); // Reset state after error
         }
     });
 }
