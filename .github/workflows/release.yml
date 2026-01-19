@@ -2,8 +2,10 @@ name: Release Builds
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -130,8 +132,8 @@ jobs:
       - name: Install Android NDK and SDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
       - name: Install Android SDK
         uses: nttld/setup-android-sdk@v1.2.0
         with:
