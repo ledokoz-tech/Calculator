@@ -134,12 +134,12 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-      - name: Install Android SDK
-        uses: nttld/setup-android-sdk@v1.2.0
+      - name: Install Android SDK and NDK
+        uses: android-actions/setup-android@v2
         with:
-          android-version: 34
-          ndk-version: 25.1.8937393 # Example NDK version, adjust if needed
-          cmake-version: 3.22.1
+          api-level: 34
+          ndk: 25.1.8937393 # Example NDK version, adjust if needed
+          cmake: 3.22.1
 
       - name: Set up Android environment variables
         run: |
