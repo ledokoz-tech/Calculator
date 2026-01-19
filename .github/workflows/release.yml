@@ -127,7 +127,11 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable-x86_64-unknown-linux-gnu,stable-aarch64-linux-android,stable-armv7-linux-androideabi
+          toolchain: stable-x86_64-unknown-linux-gnu
+
+      - name: Install additional Android toolchains
+        run: |
+          rustup target add aarch64-linux-android armv7-linux-androideabi
 
       - name: Install Android NDK and SDK
         uses: actions/setup-java@v4
