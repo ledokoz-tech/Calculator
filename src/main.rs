@@ -11,6 +11,13 @@ struct CalculatorState {
     waiting_for_second_operand: bool,
 }
 
+#[cfg(target_os = "android")]
+#[no_mangle]
+pub extern "C" fn start_app() {
+    dioxus::launch(App);
+}
+
+#[cfg(not(target_os = "android"))]
 fn main() {
     dioxus::launch(App);
 }
@@ -67,73 +74,68 @@ fn App() -> Element {
 
 // Event handler for number button clicks
 fn handle_number(state: &Signal<CalculatorState>, num_str: String) {
-    state.modify(move |s| {
-        if s.waiting_for_second_operand {
-            s.display = num_str.clone();
-            s.waiting_for_second_operand = false;
-        } else {
-            // Append number to display, handling leading zeros
-            s.display = if s.display == "0" { num_str } else { s.display.clone() + &num_str };
-        }
-    });
+    let mut state_guard = state.write();
+    if state_guard.waiting_for_second_operand {
+        state_guard.display = num_str.clone();
+        state_guard.waiting_for_second_operand = false;
+    } else {
+        // Append number to display, handling leading zeros
+        state_guard.display = if state_guard.display == "0" { num_str } else { state_guard.display.clone() + &num_str };
+    }
 }
 
 // Event handler for operator button clicks
 fn handle_operator(state: &Signal<CalculatorState>, op: char) {
-    state.modify(move |s| {
-        if let Ok(value) = s.display.parse::<f64>() {
-            s.current_value = Some(value);
-        }
-        s.operator = Some(op);
-        s.waiting_for_second_operand = true; // Next number will start a new input
-    });
+    let mut state_guard = state.write();
+    if let Ok(value) = state_guard.display.parse::<f64>() {
+        state_guard.current_value = Some(value);
+    }
+    state_guard.operator = Some(op);
+    state_guard.waiting_for_second_operand = true; // Next number will start a new input
 }
 
 // Event handler for the equals button
 fn handle_equals(state: &Signal<CalculatorState>) {
-    state.modify(move |s| {
-        if let (Some(val1), Some(op), Some(val2)) = (s.current_value, s.operator, s.display.parse::<f64>().ok()) {
-            let result = match op {
-                '+' => val1 + val2,
-                '-' => val1 - val2,
-                '*' => val1 * val2,
-                '/' => if val2 != 0.0 { val1 / val2 } else { f64::NAN }, // Handle division by zero, use NaN for error
-                _ => val2, // Should not happen with current operators
-            };
-            s.display = result.to_string();
-            s.current_value = Some(result); // Store result for potential chained operations
-            s.operator = None;
-            s.waiting_for_second_operand = false;
-        }
-    });
+    let mut state_guard = state.write();
+    if let (Some(val1), Some(op), Some(val2)) = (state_guard.current_value, state_guard.operator, state_guard.display.parse::<f64>().ok()) {
+        let result = match op {
+            '+' => val1 + val2,
+            '-' => val1 - val2,
+            '*' => val1 * val2,
+            '/' => if val2 != 0.0 { val1 / val2 } else { f64::NAN }, // Handle division by zero, use NaN for error
+            _ => val2, // Should not happen with current operators
+        };
+        state_guard.display = result.to_string();
+        state_guard.current_value = Some(result); // Store result for potential chained operations
+        state_guard.operator = None;
+        state_guard.waiting_for_second_operand = false;
+    }
 }
 
 // Event handler for square root button
 fn handle_square_root(state: &Signal<CalculatorState>) {
-    state.modify(move |s| {
-        if let Ok(value) = s.display.parse::<f64>() {
-            if value >= 0.0 {
-                let result = (value as f64).sqrt();
-                s.display = result.to_string();
-                s.current_value = Some(result);
-                s.operator = None;
-                s.waiting_for_second_operand = false;
-            } else {
-                // Handle error for negative square root
-                s.display = "Error".to_string();
-                *s = CalculatorState::default(); // Reset state after error
-            }
+    let mut state_guard = state.write();
+    if let Ok(value) = state_guard.display.parse::<f64>() {
+        if value >= 0.0 {
+            let result = (value as f64).sqrt();
+            state_guard.display = result.to_string();
+            state_guard.current_value = Some(result);
+            state_guard.operator = None;
+            state_guard.waiting_for_second_operand = false;
         } else {
-            // Handle parsing error for display value
-            s.display = "Error".to_string();
-            *s = CalculatorState::default(); // Reset state after error
+            // Handle error for negative square root
+            state_guard.display = "Error".to_string();
+            *state_guard = CalculatorState::default(); // Reset state after error
         }
-    });
+    } else {
+        // Handle parsing error for display value
+        state_guard.display = "Error".to_string();
+        *state_guard = CalculatorState::default(); // Reset state after error
+    }
 }
 
 // Event handler for the clear button
 fn handle_clear(state: &Signal<CalculatorState>) {
-    state.modify(|s| {
-        *s = CalculatorState::default(); // Reset to initial state
-    });
+    let mut state_guard = state.write();
+    *state_guard = CalculatorState::default(); // Reset to initial state
 }
