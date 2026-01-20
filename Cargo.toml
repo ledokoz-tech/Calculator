@@ -16,8 +16,8 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 dioxus = "0.5.0" # Using a specific version for consistency
 
-[dependencies.dioxus-web]
+[target.'cfg(not(target_os = "android"))'.dependencies.dioxus-web]
 version = "0.5.0" # Matching dioxus version
 
-[dependencies.dioxus-mobile]
+[target.'cfg(target_os = "android")'.dependencies.dioxus-mobile]
 version = "0.5.0" # For mobile support
