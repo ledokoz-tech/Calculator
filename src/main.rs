@@ -12,15 +12,14 @@ struct CalculatorState {
 }
 
 fn main() {
-    // Launch the Dioxus web application with proper configuration
-    dioxus_web::launch(App);
+    dioxus::launch(App);
 }
 
-fn App(cx: Scope) -> Element {
+fn App() -> Element {
     // Initialize the calculator state using use_state hook
-    let state = use_state(cx, CalculatorState::default);
+    let state = use_signal(CalculatorState::default);
 
-    cx.render(rsx! {
+    rsx! {
         div {
             class: "calculator",
             // Display component
@@ -30,7 +29,7 @@ fn App(cx: Scope) -> Element {
             },
 
             // Number buttons
-            (1..=9).map(|i| {
+            { (1..=9).map(|i| {
                 let num_str = i.to_string();
                 rsx! {
                     button {
@@ -39,7 +38,7 @@ fn App(cx: Scope) -> Element {
                         "{i}"
                     }
                 }
-            }),
+            }) },
 
             // Zero button (spans two columns)
             button {
@@ -63,11 +62,11 @@ fn App(cx: Scope) -> Element {
             // Equals button
             button { class: "button equals", onclick: move |_| handle_equals(&state), "=" }
         }
-    })
+    }
 }
 
 // Event handler for number button clicks
-fn handle_number(state: &UseState<CalculatorState>, num_str: String) {
+fn handle_number(state: &Signal<CalculatorState>, num_str: String) {
     state.modify(move |s| {
         if s.waiting_for_second_operand {
             s.display = num_str.clone();
@@ -80,7 +79,7 @@ fn handle_number(state: &UseState<CalculatorState>, num_str: String) {
 }
 
 // Event handler for operator button clicks
-fn handle_operator(state: &UseState<CalculatorState>, op: char) {
+fn handle_operator(state: &Signal<CalculatorState>, op: char) {
     state.modify(move |s| {
         if let Ok(value) = s.display.parse::<f64>() {
             s.current_value = Some(value);
@@ -91,7 +90,7 @@ fn handle_operator(state: &UseState<CalculatorState>, op: char) {
 }
 
 // Event handler for the equals button
-fn handle_equals(state: &UseState<CalculatorState>) {
+fn handle_equals(state: &Signal<CalculatorState>) {
     state.modify(move |s| {
         if let (Some(val1), Some(op), Some(val2)) = (s.current_value, s.operator, s.display.parse::<f64>().ok()) {
             let result = match op {
@@ -110,7 +109,7 @@ fn handle_equals(state: &UseState<CalculatorState>) {
 }
 
 // Event handler for square root button
-fn handle_square_root(state: &UseState<CalculatorState>) {
+fn handle_square_root(state: &Signal<CalculatorState>) {
     state.modify(move |s| {
         if let Ok(value) = s.display.parse::<f64>() {
             if value >= 0.0 {
@@ -133,7 +132,7 @@ fn handle_square_root(state: &UseState<CalculatorState>) {
 }
 
 // Event handler for the clear button
-fn handle_clear(state: &UseState<CalculatorState>) {
+fn handle_clear(state: &Signal<CalculatorState>) {
     state.modify(|s| {
         *s = CalculatorState::default(); // Reset to initial state
     });
