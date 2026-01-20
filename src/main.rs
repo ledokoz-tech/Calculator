@@ -12,13 +12,13 @@ struct CalculatorState {
 }
 
 fn main() {
-    // Launch the Dioxus web application, mounting it to the 'app' element in index.html
-    dioxus::web::launch(App);
+    // Launch the Dioxus web application with proper configuration
+    dioxus_web::launch(App);
 }
 
 fn App(cx: Scope) -> Element {
-    // Initialize the calculator state using cx.use_state
-    let mut state = use_state(cx, CalculatorState::default);
+    // Initialize the calculator state using use_state hook
+    let state = use_state(cx, CalculatorState::default);
 
     cx.render(rsx! {
         div {
@@ -26,7 +26,7 @@ fn App(cx: Scope) -> Element {
             // Display component
             div {
                 class: "display",
-                "{state.display}" // Display the current value from the state
+                "{state.read().display}" // Display the current value from the state
             },
 
             // Number buttons
@@ -35,7 +35,7 @@ fn App(cx: Scope) -> Element {
                 rsx! {
                     button {
                         class: "button",
-                        onclick: move |_| handle_number(state, num_str.clone()),
+                        onclick: move |_| handle_number(&state, num_str.clone()),
                         "{i}"
                     }
                 }
@@ -44,24 +44,24 @@ fn App(cx: Scope) -> Element {
             // Zero button (spans two columns)
             button {
                 class: "button zero",
-                onclick: move |_| handle_number(state, "0".to_string()),
+                onclick: move |_| handle_number(&state, "0".to_string()),
                 "0"
             },
 
             // Operator buttons
-            button { class: "button operator", onclick: move |_| handle_operator(state, '+'), "+" },
-            button { class: "button operator", onclick: move |_| handle_operator(state, '-'), "-" },
-            button { class: "button operator", onclick: move |_| handle_operator(state, '*'), "*" },
-            button { class: "button operator", onclick: move |_| handle_operator(state, '/'), "/" },
+            button { class: "button operator", onclick: move |_| handle_operator(&state, '+'), "+" },
+            button { class: "button operator", onclick: move |_| handle_operator(&state, '-'), "-" },
+            button { class: "button operator", onclick: move |_| handle_operator(&state, '*'), "*" },
+            button { class: "button operator", onclick: move |_| handle_operator(&state, '/'), "/" },
 
             // Square Root button
-            button { class: "button operator", onclick: move |_| handle_square_root(state), "√" },
+            button { class: "button operator", onclick: move |_| handle_square_root(&state), "√" },
 
             // Clear button
-            button { class: "button clear", onclick: move |_| handle_clear(state), "C" },
+            button { class: "button clear", onclick: move |_| handle_clear(&state), "C" },
 
             // Equals button
-            button { class: "button equals", onclick: move |_| handle_equals(state), "=" }
+            button { class: "button equals", onclick: move |_| handle_equals(&state), "=" }
         }
     })
 }
@@ -114,7 +114,7 @@ fn handle_square_root(state: &UseState<CalculatorState>) {
     state.modify(move |s| {
         if let Ok(value) = s.display.parse::<f64>() {
             if value >= 0.0 {
-                let result = value.sqrt();
+                let result = (value as f64).sqrt();
                 s.display = result.to_string();
                 s.current_value = Some(result);
                 s.operator = None;
