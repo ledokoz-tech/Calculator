@@ -124,10 +124,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust stable
+      - name: Install Rust nightly
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable-x86_64-unknown-linux-gnu
+          toolchain: nightly
 
       - name: Install additional Android toolchains
         run: |
@@ -151,7 +151,7 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
           echo "PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
           echo "NDK_TOOLCHAIN_VERSION=clang" >> $GITHUB_ENV # NDK toolchain to use
-          echo "RUSTUP_TOOLCHAIN=stable-aarch64-linux-android" >> $GITHUB_ENV # Ensure correct toolchain
+          echo "RUSTUP_TOOLCHAIN=nightly" >> $GITHUB_ENV # Ensure correct toolchain
 
       - name: Add android targets
         run: |

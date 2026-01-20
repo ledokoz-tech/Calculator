@@ -47,6 +47,34 @@ A simple, web-based calculator application built with [Dioxus](https://dioxuslab
 - **Clear**: Press "C" to reset the calculator.
 - **Display**: The current value or result is shown at the top.
 
+## Building for Android
+
+This application is currently web-based. To deploy on Android devices, you can package it as a Progressive Web App (PWA) or wrap it in a WebView-based app. For native Android builds using Dioxus:
+
+### Prerequisites
+- Android SDK and NDK installed.
+- Nightly Rust toolchain (since `aarch64-linux-android` target is available in nightly).
+
+### Steps
+1. Install nightly Rust and add the target:
+   ```
+   rustup toolchain install nightly
+   rustup target add aarch64-linux-android --toolchain nightly
+   ```
+
+2. Switch to Dioxus Mobile (if desired for native app):
+   - Update `Cargo.toml` to include `dioxus-mobile` instead of `dioxus-web`.
+   - Modify `main.rs` to use `dioxus_mobile::launch` instead of `dioxus_web::launch`.
+
+3. Build for Android:
+   ```
+   cargo build --target aarch64-linux-android --release
+   ```
+
+4. Deploy using Android tools (e.g., via ADB or an APK builder).
+
+For more details, refer to the [Dioxus documentation](https://dioxuslabs.com/docs/mobile).
+
 ## Project Structure
 
 - `src/main.rs`: Main application logic and UI components.
