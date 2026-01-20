@@ -139,11 +139,15 @@ jobs:
           distribution: "temurin"
           java-version: "17"
       - name: Install Android SDK and NDK
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         with:
           api-level: 30
           ndk: 25.1.8937393 # Example NDK version, adjust if needed
           cmake: 3.22.1
+
+      - name: Install Android Platform 30
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-30"
 
       - name: Set up Android environment variables
         run: |
