@@ -42,7 +42,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable-x86_64-apple-darwin
+          targets: x86_64-apple-darwin
 
       - name: Build Dioxus for macOS
         run: cargo build --release --target x86_64-apple-darwin
