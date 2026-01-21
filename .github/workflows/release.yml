@@ -182,4 +182,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: calculator-android-apk
-          path: target/android/release/*.apk
+          path: target/release/apk/*.apk
