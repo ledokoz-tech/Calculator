@@ -183,3 +183,57 @@ jobs:
         with:
           name: calculator-android-apk
           path: target/release/apk/*.apk
+
+  # Create Release and Upload Assets
+  create_release:
+    needs: [windows_build, macos_build, linux_build, android_build]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Calculate version from commit count
+        id: version
+        run: |
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          VERSION="v$((COMMIT_COUNT / 100)).$((COMMIT_COUNT % 100))"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Calculated version: $VERSION"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Calculator ${{ steps.version.outputs.version }}
+          body: |
+            ## Calculator ${{ steps.version.outputs.version }}
+            
+            A cross-platform calculator built with Dioxus.
+            
+            ### Downloads:
+            - **Windows**: `calculator.exe`
+            - **macOS**: `calculator-macos-x86_64.zip`
+            - **Linux**: `.deb` package or `.AppImage`
+            - **Android**: `.apk` file
+            
+            ### Installation:
+            - **Windows**: Download and run `calculator.exe`
+            - **macOS**: Unzip and run the `calculator` executable
+            - **Linux**: Install the `.deb` package or run the `.AppImage`
+            - **Android**: Install the `.apk` file
+            
+            Version is calculated based on commit count (100 commits = v1.0)
+          files: |
+            artifacts/calculator-windows-x86_64/calculator.exe
+            artifacts/calculator-macos-x86_64/calculator-macos-x86_64.zip
+            artifacts/calculator-linux-x86_64-deb/*.deb
+            artifacts/calculator-linux-x86_64-appimage/*.AppImage
+            artifacts/calculator-android-apk/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -24,7 +24,7 @@ pub fn start_app() {
 
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 pub fn start_app() {
-    dioxus::launch(App);
+    dioxus::launch::launch_cfg(App, dioxus::launch::LaunchConfig::new().with_window(dioxus::desktop::WindowBuilder::new().with_title("Calculator").with_inner_size((320.0, 480.0))));
 }
 
 fn App() -> Element {
