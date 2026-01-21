@@ -41,7 +41,7 @@ fn App() -> Element {
                 rsx! {
                     button {
                         class: "button",
-                        onclick: move |_| handle_number(&state, num_str.clone()),
+                        onclick: move |_| handle_number(state, num_str.clone()),
                         "{i}"
                     }
                 }
@@ -50,30 +50,30 @@ fn App() -> Element {
             // Zero button (spans two columns)
             button {
                 class: "button zero",
-                onclick: move |_| handle_number(&state, "0".to_string()),
+                onclick: move |_| handle_number(state, "0".to_string()),
                 "0"
             },
 
             // Operator buttons
-            button { class: "button operator", onclick: move |_| handle_operator(&state, '+'), "+" },
-            button { class: "button operator", onclick: move |_| handle_operator(&state, '-'), "-" },
-            button { class: "button operator", onclick: move |_| handle_operator(&state, '*'), "*" },
-            button { class: "button operator", onclick: move |_| handle_operator(&state, '/'), "/" },
+            button { class: "button operator", onclick: move |_| handle_operator(state, '+'), "+" },
+            button { class: "button operator", onclick: move |_| handle_operator(state, '-'), "-" },
+            button { class: "button operator", onclick: move |_| handle_operator(state, '*'), "*" },
+            button { class: "button operator", onclick: move |_| handle_operator(state, '/'), "/" },
 
             // Square Root button
-            button { class: "button operator", onclick: move |_| handle_square_root(&state), "√" },
+            button { class: "button operator", onclick: move |_| handle_square_root(state), "√" },
 
             // Clear button
-            button { class: "button clear", onclick: move |_| handle_clear(&state), "C" },
+            button { class: "button clear", onclick: move |_| handle_clear(state), "C" },
 
             // Equals button
-            button { class: "button equals", onclick: move |_| handle_equals(&state), "=" }
+            button { class: "button equals", onclick: move |_| handle_equals(state), "=" }
         }
     }
 }
 
 // Event handler for number button clicks
-fn handle_number(state: &Signal<CalculatorState>, num_str: String) {
+fn handle_number(mut state: Signal<CalculatorState>, num_str: String) {
     let mut state_guard = state.write();
     if state_guard.waiting_for_second_operand {
         state_guard.display = num_str.clone();
@@ -85,7 +85,7 @@ fn handle_number(state: &Signal<CalculatorState>, num_str: String) {
 }
 
 // Event handler for operator button clicks
-fn handle_operator(state: &Signal<CalculatorState>, op: char) {
+fn handle_operator(mut state: Signal<CalculatorState>, op: char) {
     let mut state_guard = state.write();
     if let Ok(value) = state_guard.display.parse::<f64>() {
         state_guard.current_value = Some(value);
@@ -95,7 +95,7 @@ fn handle_operator(state: &Signal<CalculatorState>, op: char) {
 }
 
 // Event handler for the equals button
-fn handle_equals(state: &Signal<CalculatorState>) {
+fn handle_equals(mut state: Signal<CalculatorState>) {
     let mut state_guard = state.write();
     if let (Some(val1), Some(op), Some(val2)) = (state_guard.current_value, state_guard.operator, state_guard.display.parse::<f64>().ok()) {
         let result = match op {
@@ -113,7 +113,7 @@ fn handle_equals(state: &Signal<CalculatorState>) {
 }
 
 // Event handler for square root button
-fn handle_square_root(state: &Signal<CalculatorState>) {
+fn handle_square_root(mut state: Signal<CalculatorState>) {
     let mut state_guard = state.write();
     if let Ok(value) = state_guard.display.parse::<f64>() {
         if value >= 0.0 {
@@ -135,7 +135,7 @@ fn handle_square_root(state: &Signal<CalculatorState>) {
 }
 
 // Event handler for the clear button
-fn handle_clear(state: &Signal<CalculatorState>) {
+fn handle_clear(mut state: Signal<CalculatorState>) {
     let mut state_guard = state.write();
     *state_guard = CalculatorState::default(); // Reset to initial state
 }
