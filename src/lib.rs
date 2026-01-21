@@ -24,11 +24,13 @@ pub fn start_app() {
 
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 pub fn start_app() {
+    // Add a small delay to prevent immediate closing on Windows
+    std::thread::sleep(std::time::Duration::from_millis(100));
     dioxus::launch(App);
 }
 
 fn App() -> Element {
-    // Initialize the calculator state using use_state hook
+    // Initialize the calculator state using use_signal hook
     let state = use_signal(CalculatorState::default);
 
     rsx! {
