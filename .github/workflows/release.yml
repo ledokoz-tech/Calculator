@@ -174,7 +174,7 @@ jobs:
         # or a `android/` directory for Dioxus mobile. This will likely require
         # a `Cargo.toml` with `[lib]` and `[package.metadata.android]` sections.
         # This is a basic attempt; Dioxus mobile setup can be involved.
-        run: cargo apk build --release
+        run: cargo apk build --release --lib
         continue-on-error: true # Allow build to continue if apk fails
 
       - name: Upload Android APK
