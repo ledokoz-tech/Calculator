@@ -27,4 +27,4 @@ version = "0.5.0" # For web builds
 
 [package.metadata.android.signing.release]
 path = "/tmp/release.keystore"
-password = "android"
+keystore_password = "android"
