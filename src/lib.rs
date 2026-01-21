@@ -17,9 +17,14 @@ pub extern "C" fn start_app() {
     dioxus::launch(App);
 }
 
-#[cfg(not(target_os = "android"))]
+#[cfg(target_family = "wasm")]
 pub fn start_app() {
     dioxus::launch(App);
+}
+
+#[cfg(not(any(target_os = "android", target_family = "wasm")))]
+pub fn start_app() {
+    dioxus::launch::launch_desktop(App);
 }
 
 fn App() -> Element {

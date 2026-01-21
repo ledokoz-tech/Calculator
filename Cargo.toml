@@ -16,11 +16,14 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 dioxus = "0.5.0" # Using a specific version for consistency
 
-[target.'cfg(not(target_os = "android"))'.dependencies.dioxus-web]
-version = "0.5.0" # Matching dioxus version
-
 [target.'cfg(target_os = "android")'.dependencies.dioxus-mobile]
 version = "0.5.0" # For mobile support
+
+[target.'cfg(not(any(target_os = "android", target_family = "wasm")))'.dependencies.dioxus-desktop]
+version = "0.5.0" # For desktop builds
+
+[target.'cfg(target_family = "wasm")'.dependencies.dioxus-web]
+version = "0.5.0" # For web builds
 
 [package.metadata.android.signing.release]
 path = "/tmp/release.keystore"
