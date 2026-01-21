@@ -165,6 +165,10 @@ jobs:
       - name: Install cargo-apk
         run: cargo install cargo-apk
 
+      - name: Generate release keystore
+        run: |
+          keytool -genkey -v -keystore /tmp/release.keystore -storepass android -alias androidkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android, OU=Calculator, O=Ledokoz, L=Unknown, S=Unknown, C=US"
+
       - name: Build Android APK
         # This command assumes your project is configured for Android with a `src-tauri/` like structure
         # or a `android/` directory for Dioxus mobile. This will likely require
