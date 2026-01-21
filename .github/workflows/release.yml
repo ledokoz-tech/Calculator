@@ -92,7 +92,7 @@ jobs:
       - name: Build .deb package
         # This command requires your Cargo.toml to have metadata for the .deb package.
         # Ensure you have [package.metadata.deb] section in Cargo.toml.
-        run: cargo deb --target x86_64-unknown-linux-gnu --output-dir ./target/debian/
+        run: cargo deb --target x86_64-unknown-linux-gnu --output ./target/debian/
         continue-on-error: true # Allow build to continue if .deb fails due to missing metadata
 
       - name: Upload .deb package
