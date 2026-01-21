@@ -24,7 +24,7 @@ pub fn start_app() {
 
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 pub fn start_app() {
-    dioxus::launch::launch_desktop(App);
+    dioxus::launch(App);
 }
 
 fn App() -> Element {
