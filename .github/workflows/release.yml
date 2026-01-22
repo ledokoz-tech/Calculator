@@ -66,7 +66,7 @@ jobs:
           cargo tauri build --target x86_64-unknown-linux-gnu --release
           
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-app
           path: |
@@ -135,7 +135,7 @@ jobs:
         run: cargo tauri build --target x86_64-pc-windows-msvc --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-app
           path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
@@ -201,7 +201,7 @@ jobs:
         run: cargo tauri build --target aarch64-apple-darwin --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-app-aarch64
           path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
@@ -267,7 +267,7 @@ jobs:
         run: cargo tauri build --target x86_64-apple-darwin --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-app-x86_64
           path: src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
@@ -348,7 +348,7 @@ jobs:
           cargo tauri android build --release
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: android-app
           path: src-tauri/gen/android/app/build/outputs/apk/release/*.apk
