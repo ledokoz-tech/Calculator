@@ -1,0 +1,390 @@
+name: 'Publish Release'
+
+on:
+  push:
+    branches:
+      - release
+
+env:
+  # For some builders we need to use Docker on older runners that have less dependencies installed
+  DOCKER_BUILDER: ghcr.io/tauri-apps/tauri-action:latest
+  # This is a required variable to enable the docker container builds
+  TAURI_TOOLCHAIN_VERSION: '2'
+
+jobs:
+  create-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    outputs:
+      release_id: ${{ steps.create-release.outputs.result }}
+
+    steps:
+      - name: Create Release
+        uses: actions/github-script@v7
+        id: create-release
+        with:
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${process.env.GITHUB_REF_NAME.split('/')[2]}`,
+              name: `v${process.env.GITHUB_REF_NAME.split('/')[2]}`,
+              draft: false,
+              prerelease: false
+            })
+            return data.id
+
+  # Building for x86_64-unknown-linux-gnu
+  linux-x86_64:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Install frontend dependencies
+        run: npm install -g @dioxus/cli
+
+      - name: Run dx build
+        run: dx build --release
+
+      - name: Build with Tauri
+        run: |
+          cargo tauri build --target x86_64-unknown-linux-gnu --release
+          
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-app
+          path: |
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+            src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+
+      - name: Upload to Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            
+            const releaseId = process.env.RELEASE_ID;
+            const artifactsPath = 'src-tauri/target/x86_64-unknown-linux-gnu/release/bundle';
+            
+            const files = [
+              `${artifactsPath}/deb/*.deb`,
+              `${artifactsPath}/appimage/*.AppImage`
+            ];
+            
+            for (const pattern of files) {
+              const glob = require('glob');
+              const filePaths = glob.sync(pattern);
+              
+              for (const filePath of filePaths) {
+                const fileName = filePath.split('/').pop();
+                
+                console.log(`Uploading ${fileName}`);
+                
+                const fileContent = await fs.readFile(filePath);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: releaseId,
+                  name: fileName,
+                  data: fileContent
+                });
+              }
+            }
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+
+  # Building for x86_64-pc-windows-msvc
+  windows-x86_64:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        run: npm install -g @dioxus/cli
+
+      - name: Run dx build
+        run: dx build --release
+
+      - name: Build with Tauri
+        run: cargo tauri build --target x86_64-pc-windows-msvc --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-app
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+
+      - name: Upload to Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            
+            const releaseId = process.env.RELEASE_ID;
+            const artifactsPath = 'src-tauri/target/x86_64-pc-windows-msvc/release/bundle';
+            
+            const files = [
+              `${artifactsPath}/msi/*.msi`
+            ];
+            
+            for (const pattern of files) {
+              const glob = require('glob');
+              const filePaths = glob.sync(pattern);
+              
+              for (const filePath of filePaths) {
+                const fileName = filePath.split('/').pop();
+                
+                console.log(`Uploading ${fileName}`);
+                
+                const fileContent = await fs.readFile(filePath);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: releaseId,
+                  name: fileName,
+                  data: fileContent
+                });
+              }
+            }
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+
+  # Building for aarch64-apple-darwin
+  macos-aarch64:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Install frontend dependencies
+        run: npm install -g @dioxus/cli
+
+      - name: Run dx build
+        run: dx build --release
+
+      - name: Build with Tauri
+        run: cargo tauri build --target aarch64-apple-darwin --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-app-aarch64
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+
+      - name: Upload to Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            
+            const releaseId = process.env.RELEASE_ID;
+            const artifactsPath = 'src-tauri/target/aarch64-apple-darwin/release/bundle';
+            
+            const files = [
+              `${artifactsPath}/dmg/*.dmg`
+            ];
+            
+            for (const pattern of files) {
+              const glob = require('glob');
+              const filePaths = glob.sync(pattern);
+              
+              for (const filePath of filePaths) {
+                const fileName = filePath.split('/').pop();
+                
+                console.log(`Uploading ${fileName}`);
+                
+                const fileContent = await fs.readFile(filePath);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: releaseId,
+                  name: fileName,
+                  data: fileContent
+                });
+              }
+            }
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+
+  # Building for x86_64-apple-darwin
+  macos-x86_64:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin
+
+      - name: Install frontend dependencies
+        run: npm install -g @dioxus/cli
+
+      - name: Run dx build
+        run: dx build --release
+
+      - name: Build with Tauri
+        run: cargo tauri build --target x86_64-apple-darwin --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-app-x86_64
+          path: src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
+
+      - name: Upload to Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            
+            const releaseId = process.env.RELEASE_ID;
+            const artifactsPath = 'src-tauri/target/x86_64-apple-darwin/release/bundle';
+            
+            const files = [
+              `${artifactsPath}/dmg/*.dmg`
+            ];
+            
+            for (const pattern of files) {
+              const glob = require('glob');
+              const filePaths = glob.sync(pattern);
+              
+              for (const filePath of filePaths) {
+                const fileName = filePath.split('/').pop();
+                
+                console.log(`Uploading ${fileName}`);
+                
+                const fileContent = await fs.readFile(filePath);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: releaseId,
+                  name: fileName,
+                  data: fileContent
+                });
+              }
+            }
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+
+  # Building for Android (APK)
+  android-apk:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install frontend dependencies
+        run: npm install -g @dioxus/cli
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Install Android NDK
+        run: |
+          rustup target add aarch64-linux-android
+          cargo install cargo-ndk
+          # Install Android SDK and NDK
+          echo "y" | sudo $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.1.8937393
+
+      - name: Run dx build
+        run: dx build --release
+
+      - name: Build with Tauri for Android
+        run: |
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.1.8937393
+          cargo tauri android build --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-app
+          path: src-tauri/gen/android/app/build/outputs/apk/release/*.apk
+
+      - name: Upload to Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs').promises;
+            
+            const releaseId = process.env.RELEASE_ID;
+            const artifactsPath = 'src-tauri/gen/android/app/build/outputs/apk/release';
+            
+            const files = [
+              `${artifactsPath}/*.apk`
+            ];
+            
+            for (const pattern of files) {
+              const glob = require('glob');
+              const filePaths = glob.sync(pattern);
+              
+              for (const filePath of filePaths) {
+                const fileName = filePath.split('/').pop();
+                
+                console.log(`Uploading ${fileName}`);
+                
+                const fileContent = await fs.readFile(filePath);
+                
+                await github.rest.repos.uploadReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: releaseId,
+                  name: fileName,
+                  data: fileContent
+                });
+              }
+            }
+        env:
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
