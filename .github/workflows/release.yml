@@ -23,14 +23,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for proper tag detection
+          fetch-depth: 0  # Fetch all history for proper commit counting
 
-      - name: Get version from Cargo.toml
+      - name: Calculate version from commit count
         id: get_version
         run: |
-          VERSION=$(grep -m 1 "^version =" Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          MAJOR=$((COMMIT_COUNT / 100))
+          MINOR=$(((COMMIT_COUNT % 100) / 10))
+          PATCH=$((COMMIT_COUNT % 10))
+          
+          # Ensure minimum version is v0.0.1
+          if [ $MAJOR -eq 0 ] && [ $MINOR -eq 0 ] && [ $PATCH -eq 0 ]; then
+            PATCH=1
+          fi
+          
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Version detected: $VERSION"
+          echo "Commit count: $COMMIT_COUNT, Version: v$VERSION"
 
       - name: Create Release
         uses: actions/github-script@v7
