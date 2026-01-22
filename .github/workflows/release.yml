@@ -3,7 +3,7 @@ name: 'Publish Release'
 on:
   push:
     branches:
-      - release
+      - main
 
 env:
   # For some builders we need to use Docker on older runners that have less dependencies installed
