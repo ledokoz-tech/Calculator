@@ -77,8 +77,8 @@ jobs:
         with:
           targets: x86_64-unknown-linux-gnu
 
-      - name: Install frontend dependencies
-        run: npm install -g @dioxus/cli
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
 
       - name: Run dx build
         run: dx build --release
@@ -147,8 +147,8 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Install frontend dependencies
-        run: npm install -g @dioxus/cli
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
 
       - name: Run dx build
         run: dx build --release
@@ -213,8 +213,8 @@ jobs:
         with:
           targets: aarch64-apple-darwin
 
-      - name: Install frontend dependencies
-        run: npm install -g @dioxus/cli
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
 
       - name: Run dx build
         run: dx build --release
@@ -279,8 +279,8 @@ jobs:
         with:
           targets: x86_64-apple-darwin
 
-      - name: Install frontend dependencies
-        run: npm install -g @dioxus/cli
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
 
       - name: Run dx build
         run: dx build --release
@@ -345,8 +345,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install frontend dependencies
-        run: npm install -g @dioxus/cli
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
