@@ -83,7 +83,7 @@ To run the calculator in development mode:
 dioxus serve
 ```
 
-Then open your browser to http://localhost:8080
+Then open your browser to <http://localhost:8080>
 
 ### Building for Production
 
@@ -150,7 +150,7 @@ We welcome contributions to the Ledokoz OS Calculator project!
 
 ## Project Structure
 
-```
+```sh
 calculator/
 ├── assets/                 # Static assets like stylesheets
 │   └── styles.css          # Calculator-specific styles
