@@ -8,12 +8,13 @@ static CSS: Asset = asset!("/assets/styles.css");
 struct ButtonProps {
     label: String,
     on_click: EventHandler<MouseEvent>,
+    class: Option<String>,
 }
 
 fn CalcButton(props: ButtonProps) -> Element {
     rsx! {
         button {
-            class: "calc-button",
+            class: props.class.unwrap_or_else(|| "calc-button".to_string()),
             onclick: move |evt| props.on_click.call(evt),
             "{props.label}"
         }
@@ -63,7 +64,7 @@ fn Calculator() -> Element {
                     } else {
                         // Format the result to avoid unnecessary decimals
                         let formatted_result = if result.fract() == 0.0 {
-                            result as i64
+                            result as i64 as f64
                         } else {
                             (result * 1000000.0).round() / 1000000.0
                         };
@@ -71,7 +72,7 @@ fn Calculator() -> Element {
                         *current_input.write() = if result.fract() == 0.0 {
                             format!("{}", formatted_result as i64)
                         } else {
-                            format!("{}", (result * 1000000.0).round() / 1000000.0)
+                            format!("{}", formatted_result)
                         };
                     }
                     
@@ -106,7 +107,7 @@ fn Calculator() -> Element {
             }
             div {
                 class: "calculator-row",
-                CalcButton { label: "C".to_string(), on_click: move |_| handle_clear() }
+                CalcButton { label: "C".to_string(), on_click: move |_| handle_clear(), class: None }
                 CalcButton { label: "√".to_string(), on_click: move |_| {
                     if let Ok(val) = current_input().parse::<f64>() {
                         if val >= 0.0 {
@@ -118,39 +119,39 @@ fn Calculator() -> Element {
                     } else {
                         *current_input.write() = "Error".to_string();
                     }
-                }}
-                CalcButton { label: "/".to_string(), on_click: move |_| handle_operator('/') }
-                CalcButton { label: "*".to_string(), on_click: move |_| handle_operator('*') }
+                }, class: None }
+                CalcButton { label: "/".to_string(), on_click: move |_| handle_operator('/'), class: None }
+                CalcButton { label: "*".to_string(), on_click: move |_| handle_operator('*'), class: None }
             }
             div {
                 class: "calculator-row",
-                CalcButton { label: "7".to_string(), on_click: move |_| handle_number("7") }
-                CalcButton { label: "8".to_string(), on_click: move |_| handle_number("8") }
-                CalcButton { label: "9".to_string(), on_click: move |_| handle_number("9") }
-                CalcButton { label: "-".to_string(), on_click: move |_| handle_operator('-') }
+                CalcButton { label: "7".to_string(), on_click: move |_| handle_number("7"), class: None }
+                CalcButton { label: "8".to_string(), on_click: move |_| handle_number("8"), class: None }
+                CalcButton { label: "9".to_string(), on_click: move |_| handle_number("9"), class: None }
+                CalcButton { label: "-".to_string(), on_click: move |_| handle_operator('-'), class: None }
             }
             div {
                 class: "calculator-row",
-                CalcButton { label: "4".to_string(), on_click: move |_| handle_number("4") }
-                CalcButton { label: "5".to_string(), on_click: move |_| handle_number("5") }
-                CalcButton { label: "6".to_string(), on_click: move |_| handle_number("6") }
-                CalcButton { label: "+".to_string(), on_click: move |_| handle_operator('+') }
+                CalcButton { label: "4".to_string(), on_click: move |_| handle_number("4"), class: None }
+                CalcButton { label: "5".to_string(), on_click: move |_| handle_number("5"), class: None }
+                CalcButton { label: "6".to_string(), on_click: move |_| handle_number("6"), class: None }
+                CalcButton { label: "+".to_string(), on_click: move |_| handle_operator('+'), class: None }
             }
             div {
                 class: "calculator-row",
-                CalcButton { label: "1".to_string(), on_click: move |_| handle_number("1") }
-                CalcButton { label: "2".to_string(), on_click: move |_| handle_number("2") }
-                CalcButton { label: "3".to_string(), on_click: move |_| handle_number("3") }
+                CalcButton { label: "1".to_string(), on_click: move |_| handle_number("1"), class: None }
+                CalcButton { label: "2".to_string(), on_click: move |_| handle_number("2"), class: None }
+                CalcButton { label: "3".to_string(), on_click: move |_| handle_number("3"), class: None }
                 CalcButton { 
                     label: "=".to_string(), 
                     on_click: move |_| handle_equals(),
-                    class: "equals-button"
+                    class: Some("equals-button".to_string())
                 }
             }
             div {
                 class: "calculator-row",
-                CalcButton { label: "0".to_string(), on_click: move |_| handle_number("0") }
-                CalcButton { label: ".".to_string(), on_click: move |_| handle_decimal() }
+                CalcButton { label: "0".to_string(), on_click: move |_| handle_number("0"), class: None }
+                CalcButton { label: ".".to_string(), on_click: move |_| handle_decimal(), class: None }
             }
         }
     }

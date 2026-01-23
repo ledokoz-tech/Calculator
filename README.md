@@ -1,7 +1,3 @@
-# Tauri + Dioxus
+# Calculator
 
-This template should help get you started developing with Tauri and Dioxus.
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer) + [Dioxus](https://marketplace.visualstudio.com/items?itemName=DioxusLabs.dioxus).
+This is a placeholder of the readme file. Read the [README](./.github/README.md) for more information.
