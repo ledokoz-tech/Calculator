@@ -80,6 +80,9 @@ jobs:
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
 
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version 2.0.0-alpha.12
+
       - name: Run dx build
         run: dx build --release
 
@@ -150,6 +153,9 @@ jobs:
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
 
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version 2.0.0-alpha.12
+
       - name: Run dx build
         run: dx build --release
 
@@ -215,6 +221,9 @@ jobs:
 
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version 2.0.0-alpha.12
 
       - name: Run dx build
         run: dx build --release
@@ -282,6 +291,9 @@ jobs:
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
 
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version 2.0.0-alpha.12
+
       - name: Run dx build
         run: dx build --release
 
@@ -348,6 +360,9 @@ jobs:
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
 
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version 2.0.0-alpha.12
+
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -359,14 +374,13 @@ jobs:
           cargo install cargo-ndk
           # Install Android SDK and NDK
           echo "y" | sudo $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
-          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.1.8937393
+          echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.1.8937393" >> $GITHUB_ENV
 
       - name: Run dx build
         run: dx build --release
 
       - name: Build with Tauri for Android
         run: |
-          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.1.8937393
           cargo tauri android build --release
 
       - name: Upload Artifact
