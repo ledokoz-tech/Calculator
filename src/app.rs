@@ -27,7 +27,7 @@ fn Calculator() -> Element {
     let mut operator = use_signal(|| Option::<char>::None);
     let mut previous_input = use_signal(|| Option::<String>::None);
 
-    let handle_number = move |num: &str| {
+    let mut handle_number = move |num: &str| {
         let mut current = current_input.write();
         
         if *current == "0" {
@@ -37,7 +37,7 @@ fn Calculator() -> Element {
         }
     };
 
-    let handle_operator = move |op: char| {
+    let mut handle_operator = move |op: char| {
         if !current_input().is_empty() {
             *previous_input.write() = Some(current_input().clone());
             *operator.write() = Some(op);
@@ -45,9 +45,10 @@ fn Calculator() -> Element {
         }
     };
 
-    let handle_equals = move || {
-        if let Some(ref prev_val) = *previous_input.read() {
-            if let Ok(prev) = prev_val.parse::<f64>() {
+    let mut handle_equals = move || {
+        let prev_val = previous_input();
+        if let Some(prev_str) = prev_val {
+            if let Ok(prev) = prev_str.parse::<f64>() {
                 if let Ok(current) = current_input().parse::<f64>() {
                     let result = match operator().unwrap_or_default() {
                         '+' => prev + current,
@@ -57,7 +58,7 @@ fn Calculator() -> Element {
                         '√' => current.sqrt(),
                         _ => current,
                     };
-                    
+
                     // Handle invalid operations like square root of negative numbers
                     if result.is_nan() || result.is_infinite() {
                         *current_input.write() = "Error".to_string();
@@ -68,14 +69,14 @@ fn Calculator() -> Element {
                         } else {
                             (result * 1000000.0).round() / 1000000.0
                         };
-                        
+
                         *current_input.write() = if result.fract() == 0.0 {
                             format!("{}", formatted_result as i64)
                         } else {
                             format!("{}", formatted_result)
                         };
                     }
-                    
+
                     *operator.write() = Option::<char>::None;
                     *previous_input.write() = Option::<String>::None;
                 }
@@ -83,17 +84,16 @@ fn Calculator() -> Element {
         }
     };
 
-    let handle_clear = move || {
+    let mut handle_clear = move || {
         *current_input.write() = "0".to_string();
         *operator.write() = Option::<char>::None;
         *previous_input.write() = Option::<String>::None;
     };
 
-    let handle_decimal = move || {
-        let current = current_input.read();
+    let mut handle_decimal = move || {
+        let current = current_input();
         if !current.contains('.') {
-            let mut current = current_input.write();
-            *current = format!("{}{}", *current, ".");
+            *current_input.write() = format!("{}{}", current, ".");
         }
     };
 
