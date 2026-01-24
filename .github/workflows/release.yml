@@ -81,7 +81,7 @@ jobs:
         run: cargo install dioxus-cli
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version 2.0.0-alpha.12
+        run: cargo install tauri-cli --version 2.0.0-rc.0
 
       - name: Run dx build
         run: dx build --release
@@ -154,7 +154,7 @@ jobs:
         run: cargo install dioxus-cli
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version 2.0.0-alpha.12
+        run: cargo install tauri-cli --version 2.0.0-rc.0
 
       - name: Run dx build
         run: dx build --release
@@ -223,7 +223,7 @@ jobs:
         run: cargo install dioxus-cli
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version 2.0.0-alpha.12
+        run: cargo install tauri-cli --version 2.0.0-rc.0
 
       - name: Run dx build
         run: dx build --release
@@ -292,7 +292,7 @@ jobs:
         run: cargo install dioxus-cli
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version 2.0.0-alpha.12
+        run: cargo install tauri-cli --version 2.0.0-rc.0
 
       - name: Run dx build
         run: dx build --release
@@ -361,7 +361,7 @@ jobs:
         run: cargo install dioxus-cli
 
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version 2.0.0-alpha.12
+        run: cargo install tauri-cli --version 2.0.0-rc.0
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
